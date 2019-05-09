@@ -6,26 +6,114 @@
 </head>
 
 <body>
-    <script src="Grid.js"></script>
+    <div style="width:190px;">
+        <span>Départ : </span> <br />
+        <span>x : </span><input type="text" id="depart_x" name="depart_x" value="450" style="width:40px;" /> <br />
+        <span>y : </span><input type="text" id="depart_y" name="depart_y" value="310" style="width:40px;" /> <br /> <br />
+        <span>Arrivée :</span> <br />
+        <span>x : </span><input type="text" id="arrivee_x" name="arrivee_x" value="100" style="width:40px;" /> <br />
+        <span>y : </span><input type="text" id="arrivee_y" name="arrivee_y" value="450" style="width:40px;" /> <br /> <br />
+        <span>Précision : </span><input type="number" id="precision" name="precision" value="10" max="10"
+            style="width:40px;" />(1/2/5/10) <br /> <br />
+        <div style="width:100%;text-align:center">
+            <button id="etape1" name="etape1">Go</button>
+        </div>
+    </div>
+    <div style="margin-left: 200px;position: fixed;top: 0;">
+        <canvas id="canvas" width="800" height="600"
+            style="position: absolute;z-index: 1;border: 0px solid black;"></canvas>
+        <canvas id="cadre" width="800" height="600" style="position: absolute;z-index: 2;"></canvas>
+        <canvas id="calc" width="800" height="600" style="position: absolute;z-index: 3;"></canvas>
+        <canvas id="dot" width="800" height="600" style="position: absolute;z-index: 4;"></canvas>
+    </div>
+
+    <script src="walls.js"></script>
+    <script src="Node.js"></script>
     <script src="PathFinder.js"></script>
     <script type="text/javascript">
 
-        (function () {
-            var matrix = [
-                [0, 0, 0, 0, 0, 0, 0],
-                [0, 1, 1, 1, 1, 1, 0],
-                [0, 0, 0, 0, 0, 1, 0],
-                [0, 0, 0, 0, 0, 1, 0],
-                [0, 0, 0, 0, 0, 1, 0],
-                [0, 0, 0, 0, 0, 1, 0],
-            ];
-            var grid = new Grid(matrix);
+        var canvas = document.getElementById("canvas")
+        var ctx = canvas.getContext("2d")
 
-            var finder = new PathFinder();
-            var path = finder.findPath(1, 4, 6, 0, grid);
+        function drawCoordinates(x, y, color) {
+            var precision = parseInt(document.getElementById("precision").value);
+            if (precision < 5) {
+                var pointSize = 1;
+            } else if (precision < 10) {
+                var pointSize = 2;
+            } else {
+                var pointSize = 3;
+            }
+            var ctx = document.getElementById("dot").getContext("2d");
+
+            ctx.fillStyle = color;
+
+            ctx.beginPath();
+            ctx.arc(x, y, pointSize, 0, Math.PI * 2, true);
+            ctx.fill();
+        }
+
+        function drawLine(x, y) {
+
+            if (y != null) {
+                var c = document.getElementById("cadre");
+                var ctx = c.getContext("2d");
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            } else {
+                var c = document.getElementById("cadre");
+                var ctx = c.getContext("2d");
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+        }
+        var map = [];
+        (function () {
+            // Grille
+            for (var x = 0; x <= canvas.width; x += 10) {
+                drawLine(x);
+            }
+            for (var y = 0; y <= canvas.height; y += 10) {
+                drawLine(0, y);
+            }
+
+            // Murs
+            var ctx_batiment = document.getElementById('canvas').getContext('2d');
+            for (var key in walls) {
+                var wall = walls[key];
+                ctx_batiment.rect(wall.x1, wall.y1, wall.x2, wall.y2);
+                ctx_batiment.fill();
+            };
+
+            // test pathfinder
+            document.getElementById("etape1").addEventListener("click", go);
+
+
+        })();
+
+        function go() {
+            var ctx = document.getElementById('dot').getContext('2d');
+            ctx.clearRect(0, 0, 800, 600);
+            var start_X = parseInt(document.getElementById("depart_x").value);
+            var start_Y = parseInt(document.getElementById("depart_y").value);
+            var end_X = parseInt(document.getElementById("arrivee_x").value);
+            var end_Y = parseInt(document.getElementById("arrivee_y").value);
+            var precision = parseInt(document.getElementById("precision").value);
+            var finder = new PathFinder(precision);
+            var path = finder.findPath(start_X, start_Y, end_X, end_Y);
 
             console.log(path);
-        })();
+            for (var key in path) {
+                var node = path[key];
+                drawCoordinates(path[key][0], path[key][1], 'red');
+            }
+            drawCoordinates(start_X, start_Y, 'green');
+            drawCoordinates(end_X, end_Y, 'green');
+        }
     </script>
 </body>
 

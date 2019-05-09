@@ -1,18 +1,22 @@
 class PathFinder {
-    constructor() {
+    constructor(precision) {
+        this.precision = precision;
+        this.width = 800;
+        this.height = 600;
         this.cmp = function (nodeA, nodeB) {
             return nodeA.f - nodeB.f;
         }
+        this.map = [];
         this.nodes = [];
     }
 
-    findPath(startX, startY, endX, endY, grid) {
+    findPath(startX, startY, endX, endY) {
 
-        var startNode = grid.getNodeAt(startX, startY),
-            endNode = grid.getNodeAt(endX, endY),
+        var startNode = this.setNodeMap(startY, startX),
+            endNode = this.setNodeMap(endY, endX),
             weight = 1,
             abs = Math.abs, SQRT2 = Math.SQRT2,
-            node, neighbors, neighbor, i, l, x, y, ng;
+            node, neighbors, neighbor, i, l, ng;
 
         startNode.g = 0;
         startNode.f = 0;
@@ -20,9 +24,12 @@ class PathFinder {
         this.heappush(startNode);
         startNode.opened = true;
 
-        while (!this.empty()) {
+        var occur = 0;
+        while (!this.empty() && occur < 275000) {
+            occur++
             node = this.heappop();
             node.closed = true;
+            drawCoordinates(node.x, node.y, 'blue');
 
             if (node === endNode) {
                 var path = [[endNode.x, endNode.y]];
@@ -33,7 +40,7 @@ class PathFinder {
                 return path.reverse();
             }
 
-            neighbors = grid.getNeighbors(node);
+            neighbors = this.getNeighbors(node);
             for (i = 0, l = neighbors.length; i < l; ++i) {
                 neighbor = neighbors[i];
 
@@ -133,5 +140,38 @@ class PathFinder {
         }
         array[pos] = newitem;
         return this._siftdown(array, startpos, pos, cmp);
+    };
+
+    setNodeMap(y, x) {
+        if (x > -1 && x < this.width && y > -1 && y < this.height) {
+            if (this.map[y] == null) {
+                this.map[y] = [];
+            }
+            if (this.map[y][x] == null) {
+                this.map[y][x] = new Node(x, y);
+            }
+            return this.map[y][x];
+        }
+
+        return 0;
+    }
+
+    getNeighbors(node) {
+        var x = node.x,
+            y = node.y,
+            neighbors = [];
+
+        for (var i = y - this.precision; i <= y + this.precision; i += this.precision) {
+            for (var j = x - this.precision; j <= x + this.precision; j += this.precision) {
+                if (!(i == y && j == x)) {
+                    var node = this.setNodeMap(i, j);
+                    if (node && this.map[i][j].walkable) {
+                        neighbors.push(this.map[i][j]);
+                    }
+                }
+            }
+        }
+
+        return neighbors;
     };
 }
