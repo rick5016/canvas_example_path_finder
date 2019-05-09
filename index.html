@@ -1,0 +1,32 @@
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Test pathfinding</title>
+</head>
+
+<body>
+    <script src="Grid.js"></script>
+    <script src="PathFinder.js"></script>
+    <script type="text/javascript">
+
+        (function () {
+            var matrix = [
+                [0, 0, 0, 0, 0, 0, 0],
+                [0, 1, 1, 1, 1, 1, 0],
+                [0, 0, 0, 0, 0, 1, 0],
+                [0, 0, 0, 0, 0, 1, 0],
+                [0, 0, 0, 0, 0, 1, 0],
+                [0, 0, 0, 0, 0, 1, 0],
+            ];
+            var grid = new Grid(matrix);
+
+            var finder = new PathFinder();
+            var path = finder.findPath(1, 4, 6, 0, grid);
+
+            console.log(path);
+        })();
+    </script>
+</body>
+
+</html>
