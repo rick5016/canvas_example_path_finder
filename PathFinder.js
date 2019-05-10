@@ -14,7 +14,7 @@ class PathFinder {
 
         var startNode = this.setNodeMap(startY, startX),
             endNode = this.setNodeMap(endY, endX),
-            weight = 1,
+            weight = 0.1,
             abs = Math.abs, SQRT2 = Math.SQRT2,
             node, neighbors, neighbor, i, l, ng;
 
